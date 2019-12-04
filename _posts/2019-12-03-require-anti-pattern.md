@@ -16,7 +16,7 @@ To get started, I will show an example that demonstrates what `require` is frequ
 
 ```scala
 def transferMoney(amount: Int): TransferResult = {
-  require(amount > 0, “amount to transfer must be greater than zero)
+  require(amount > 0, "amount to transfer must be greater than zero")
   // transfer money operations here
 }
 ```
