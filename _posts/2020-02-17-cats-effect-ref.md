@@ -4,7 +4,7 @@ title:  "Cats Effect Ref"
 author: jeff
 categories: [ scala, cats-effect, ref, fp, concurrency, mutability, state ]
 tags: []
-image: assets/images/kinsey-Gk-MMZu9rmE-unsplash.jpg
+image: assets/images/koushik-chowdavarapu-2xUdMrorXjc-unsplash.jpg
 description: "Ref is a great choice for holding concurrent application state."
 featured: true
 hidden: false
@@ -47,11 +47,9 @@ This operation is pure since it is lifted into `F` using `delay` from the `Sync`
 
 ### Example
 
-{% scalafiddle template="CatsEffect" %}
 ```scala
 val ref: IO[Ref[IO, Int]] = Ref.of[IO, Int](42)
 ```
-{% endscalafiddle %}
 
 Note: This is equivalent to `Ref[IO].of(42)` because `Ref` takes advantage of [partially applied types](https://typelevel.org/cats/guidelines.html#partially-applied-type-params).
 
@@ -211,12 +209,9 @@ final class BankAccounts(ref: Ref[IO, Map[String, BankAccount]]) {
   def alterAmount(accountNumber: String, amount: Int): IO[Option[Balance]] = {
     ref.modify { allBankAccounts =>
       val maybeBankAccount = allBankAccounts.get(accountNumber).map { bankAccount =>
-        println(bankAccount)
         bankAccount.copy(balance = bankAccount.balance + amount)
       }
-      println(maybeBankAccount)
       val newBankAccounts = allBankAccounts ++ maybeBankAccount.map(m => (m.number, m))
-      println(newBankAccounts)
       val maybeNewBalance = maybeBankAccount.map(_.balance)
       (newBankAccounts, maybeNewBalance)
     }
@@ -240,7 +235,7 @@ val example = for {
   _ <- bankAccounts.alterAmount("1", 50)
   _ <- bankAccounts.alterAmount("1", -25)
   endingBalance <- bankAccounts.getBalance("1")
-} yield endingBalance
+} yield println(endingBalance)
 
 example.unsafeRunSync()
 ```
