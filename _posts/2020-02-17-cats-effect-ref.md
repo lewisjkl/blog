@@ -12,7 +12,7 @@ hidden: false
 
 As a newcomer to functional programming, I thought mutability was prohibited. Although I figured out how to use immutability in most situations, I found there were obvious cases where it doesn’t work such as modeling and updating in-memory state (e.g. in-memory caches and counters). I was wrong to think that functional programming mandated using only immutable values. Functional programming requires referential transparency, but as long as that holds, mutability is fine.
 
-In some cases, in-memory state can be modeled using the [state monad](https://typelevel.org/cats/datatypes/state.html). It provides a way to represent state that is updated sequentially. If you have a case where state moves serially from one value to another by taking the previous state as an input, then you should look at the state monad. However, if your use case needs to update state concurrently rather than sequentially, look no further than Cats Effect’s `Ref` (Additionally, you can look at Zio for another `Ref` implementation if you prefer).
+In some cases, in-memory state can be modeled using the [state monad](https://typelevel.org/cats/datatypes/state.html). It provides a way to represent state that is updated sequentially. If you have a case where state moves serially from one value to another by taking the previous state as an input, then you should look at the state monad. However, if your use case needs to update state concurrently rather than sequentially, look no further than Cats Effect’s `Ref` (Additionally, you can look at Zio for another `Ref` [implementation](https://zio.dev/docs/datatypes/datatypes_ref) if you prefer).
 
 ## Ref: An Overview
 `Ref` is a mutable reference which:
@@ -82,9 +82,9 @@ printRef.unsafeRunSync()
 
 The example above does the following:
 
-1. create a `Ref` using `Ref[IO].of(42)`
-2. acquire the contents of the `Ref` using `ref.get`
-3. print the contents out to the console using `println(contents)`
+1. Create a `Ref` using `Ref[IO].of(42)`
+2. Acquire the contents of the `Ref` using `ref.get`
+3. Print the contents out to the console using `println(contents)`
 
 In this example, `printRef` returns an `IO[Unit]` which is an effect representing a computation that can be run at some future point in time. In this case (and in all of the examples of this post), the effect is run immediately by calling `.unsafeRunSync()`. Typically, you don't call this explicitly within your programs, but rather use [IOApp](https://typelevel.org/cats-effect/datatypes/ioapp.html) to run your programs.
 
@@ -151,7 +151,7 @@ This operation is logically more simple than `modify`, which is why I have inclu
 
 `update` takes a function `f` as an argument that will be called on whatever value is currently contained inside of the `Ref`. Then whatever value the function `f` returns will be the new value inside of the `Ref`.
 
-How `update` works will make more sense after we understand how the `modify` function on `Ref` works. For now just note that `update` provides a way to atomically perform a "get then set" operation.
+How `update` works will make more sense after we understand how the `modify` function on `Ref` works. For now the key thing to understand is that `update` provides a way to atomically perform a "get then set" operation.
 
 ### Example
 
