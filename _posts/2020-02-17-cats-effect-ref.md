@@ -10,9 +10,9 @@ featured: true
 hidden: false
 ---
 
-As a newcomer to functional programming, I thought mutability was prohibited. Although I figured out how to use immutability in most situations, I found there are obvious cases where it doesn’t work such as modeling and updating in-memory state (e.g. in-memory caches and counters). I was wrong to think that functional programming mandates only using immutable values. Functional programming requires referential transparency, but as long as that holds, mutability is fine.
+As a newcomer to functional programming, I thought mutability was prohibited. Although I figured out how to use immutability in most situations, I found there were obvious cases where it doesn’t work such as modeling and updating in-memory state (e.g. in-memory caches and counters). I was wrong to think that functional programming mandated using only immutable values. Functional programming requires referential transparency, but as long as that holds, mutability is fine.
 
-In some cases, in-memory state can be modeled using the [state monad](https://typelevel.org/cats/datatypes/state.html). It provides a way to represent state that is updated sequentially. If you have a case where state moves serially from one value to another by taking the previous state as an input, then you should look at the state monad. However, if your use case needs to update state concurrently rather than sequentially, look no further than Cats Effect’s `Ref` (Actually, you can also look at Zio for another `Ref` implementation if you prefer).
+In some cases, in-memory state can be modeled using the [state monad](https://typelevel.org/cats/datatypes/state.html). It provides a way to represent state that is updated sequentially. If you have a case where state moves serially from one value to another by taking the previous state as an input, then you should look at the state monad. However, if your use case needs to update state concurrently rather than sequentially, look no further than Cats Effect’s `Ref` (Additionally, you can look at Zio for another `Ref` implementation if you prefer).
 
 ## Ref: An Overview
 `Ref` is a mutable reference which:
@@ -22,7 +22,7 @@ In some cases, in-memory state can be modeled using the [state monad](https://ty
 3. Is modified atomically
 4. Is dealt with using only pure functions
 
-`Ref` provides these features by combining Java’s `AtomicReference` and Cats Effect’s `Sync` type class. To show how these building blocks combine to create `Ref`, I am going to walk through each of the major operations that are available on Ref:
+`Ref` gets its atomicity from Java’s `AtomicReference` and its referential transparency by using Cats Effect’s `Sync` type class. To show how these building blocks combine to create `Ref`, I am going to walk through each of the major operations that are available on Ref:
 
 1. `of`
 2. `get`
@@ -30,7 +30,7 @@ In some cases, in-memory state can be modeled using the [state monad](https://ty
 4. `update`
 5. `modify`
 
-Note: I have changed some of the implementations below to simplify them for this post. They are mostly the same. If you wish to see the real implementation, check it out [here](https://github.com/typelevel/cats-effect/blob/master/core/shared/src/main/scala/cats/effect/concurrent/Ref.scala). 
+Note: I have changed some of the implementations below to simplify them for this post, but they are mostly the same. If you wish to see the real implementation of `Ref`, check it out [here](https://github.com/typelevel/cats-effect/blob/master/core/shared/src/main/scala/cats/effect/concurrent/Ref.scala). 
 
 ## Ref#of
 The `of` method is a constructor for `Ref`.
@@ -43,7 +43,7 @@ def of[F[_], A](a: A)(implicit F: Sync[F]): F[Ref[F, A]] = F.delay(new Ref[F, A]
 
 This constructor creates a `Ref` filled with an `AtomicReference` containing an initial value `a`. It does this within the `F` context to maintain purity.
 
-This operation is pure since it is lifted into `F` using `delay` from the `Sync` type class. No effects are executed by calling this function. It merely returns an effect  `F` with the ability to run at some future point to create the `Ref`. The same is true for all of the functions within `Ref`. They are pure because they are taking advantage of the delay behavior provided by the `Sync` type class.
+This operation is referentially transparent since it is composed in `F` using `delay` from the `Sync` type class. No effects are executed by calling this function. It merely returns an effect `F` with the ability to run at some future point and create the `Ref`. The same is true for all of the functions within `Ref`. They are pure because they are taking advantage of the delay behavior provided by the `Sync` type class.
 
 ### Example
 
@@ -79,6 +79,14 @@ val printRef = for {
 printRef.unsafeRunSync()
 ```
 {% endscalafiddle %}
+
+The example above does the following:
+
+1. create a `Ref` using `Ref[IO].of(42)`
+2. acquire the contents of the `Ref` using `ref.get`
+3. print the contents out to the console using `println(contents)`
+
+In this example, `printRef` returns an `IO[Unit]` which is an effect representing a computation that can be run at some future point in time. In this case (and in all of the examples of this post), the effect is run immediately by calling `.unsafeRunSync()`. Typically, you don't call this explicitly within your programs, but rather use [IOApp](https://typelevel.org/cats-effect/datatypes/ioapp.html) to run your programs.
 
 ## Ref#set
 This operation is structured the same as `get` except we are performing a `set` operation this time. This operation relies on the same `volatile` and thread-safe nature of `AtomicReference`.
@@ -119,7 +127,7 @@ val printRef = for {
 } yield println(contents)
 ```
 
-The issue here is that we are going to get inconsistent outputs when running this code. We have two separate processes working in parallel to perform a `getThenSet` operation. Both of these processes may `get` the value in the `Ref` before the other process has a chance to increment the value using the `set` operation. This means that the execution could look like:
+The issue here is that we are going to get inconsistent outputs when running this code. We have two separate processes working in parallel to perform a `getThenSet` operation. Both of these processes may `get` the value in the `Ref` before the other process has a chance to increment the value using the `set` operation. Below is an example of the execution of this program where each of the processes gets the value `42` when calling `Ref#get`. 
 
 ```
 process1: Ref#get -> returns 42
@@ -128,7 +136,7 @@ process1: Ref#set -> sets to 43
 process2: Ref#set -> sets to 43
 ```
 
-We would have expected the output of this program to be `44`, but due to `get` and `set` happening in two different operations, we end up potentially incrementing the same value twice.
+We would have expected the final output of this program to be `44`, but due to `get` and `set` happening in two different operations, we end up potentially incrementing to the same value twice.
 
 This is where update comes in. 
 
@@ -141,9 +149,9 @@ def update(f: A => A): F[Unit] =
 
 This operation is logically more simple than `modify`, which is why I have included it before `modify` in this post. Don’t worry too much about the implementation here until after you have read the section about `modify`. For now the important thing to note is what `update` does.
 
-`update` takes a function `f` as an argument that will be called with whatever value is currently contained inside of the `Ref`. Then whatever value the function `f` returns will be the new value inside of the `Ref`.
+`update` takes a function `f` as an argument that will be called on whatever value is currently contained inside of the `Ref`. Then whatever value the function `f` returns will be the new value inside of the `Ref`.
 
-How this all works will make more sense after we cover `modify` below. 
+How `update` works will make more sense after we understand how the `modify` function on `Ref` works. For now just note that `update` provides a way to atomically perform a "get then set" operation.
 
 ### Example
 
@@ -160,7 +168,7 @@ printRef.unsafeRunSync()
 {% endscalafiddle %}
 
 ## Ref#modify
-We’ve shown that update can perform a “get and set” operation (although we have yet to explain how), but we haven’t yet seen how to perform a “get and set and get” operation. Although it may seem unlikely that such an operation is needed, it is a common one. Take the example above using `update` to increment a counter. This method works unless we need to atomically access the value after it’s been incremented. For example, if we want to keep track of the number of requests that an HTTP server has seen over time, we could use a `Ref` with the `update` function to add one to a counter for every request. However, the `update` function wouldn’t work if we wanted to return the new request number after updating it. We could use `update` followed by a `get`, but this is not atomic because the `get` is performed as a separate machine instruction. This could lead to two requests getting the same ID. 
+We’ve shown that update can perform a “get and set” operation (although we have yet to explain how), but we haven’t yet seen how to perform a “get and set and get” operation. Although it may seem unlikely that such an operation is needed, it is a common one. Take the example above using `update` to increment a counter. This method works unless we need to atomically access the value after it’s been incremented. For example, if we want to keep track of the number of requests that an HTTP server has seen over time, we could use a `Ref` with the `update` function to add one to a counter for every request. However, the `update` function won’t work if we want to return the new request number after updating it. We could use `update` followed by a `get`, but this is not atomic because the `get` is performed as a separate machine instruction. This could lead to two requests getting the same ID. 
 
 This is the problem that modify solves. 
 
