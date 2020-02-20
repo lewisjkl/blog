@@ -51,7 +51,7 @@ kramdown:
       line_numbers: false
 
 scalafiddle:
-  dependency: eu.timepit %%% refined % 0.9.0
+  dependency: eu.timepit %%% refined % 0.9.0,org.typelevel %%% cats-effect % 2.0.0
 
 # Adsense (change to "enabled" to activate, also your client id and ad slot. Create a new ad unit from your Adsense account to get the slot.)
 adsense: "disabled"
