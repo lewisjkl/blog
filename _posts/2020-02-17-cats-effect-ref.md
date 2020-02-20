@@ -38,7 +38,8 @@ The `of` method is a constructor for `Ref`.
 ### Implementation
 
 ```scala
-def of[F[_], A](a: A)(implicit F: Sync[F]): F[Ref[F, A]] = F.delay(new Ref[F, A](new AtomicReference[A](a)))
+def of[F[_], A](a: A)(implicit F: Sync[F]): F[Ref[F, A]] =
+  F.delay(new Ref[F, A](new AtomicReference[A](a)))
 ```
 
 This constructor creates a `Ref` filled with an `AtomicReference` containing an initial value `a`. It does this within the `F` context to maintain purity.
@@ -225,7 +226,8 @@ final class BankAccounts(ref: Ref[IO, Map[String, BankAccount]]) {
     }
   }
 
-  def getBalance(accountNumber: String): IO[Option[Balance]] = ref.get.map(_.get(accountNumber).map(_.balance))
+  def getBalance(accountNumber: String): IO[Option[Balance]] =
+    ref.get.map(_.get(accountNumber).map(_.balance))
 
   def addAccount(account: BankAccount): IO[Unit] =
     ref.update(_ + (account.number -> account))
