@@ -239,7 +239,7 @@ object BankAccounts {
 }
 
 val example = for {
-	ref <- Ref[IO].of(Map.empty[String, BankAccount])
+  ref <- Ref[IO].of(Map.empty[String, BankAccount])
   bankAccounts = new BankAccounts(ref)
   _ <- bankAccounts.addAccount(BankAccount("1", 0))
   _ <- bankAccounts.alterAmount("1", 50)
