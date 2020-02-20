@@ -271,4 +271,4 @@ I hope that this overview has given you a better intuition for what `Ref` is and
 * [Cats Effect Documentation](https://typelevel.org/cats-effect/concurrency/ref.html)
 * [Composable Concurrency with Ref + Deferred](https://vimeo.com/366191463)
 
-If you have any questions or comments about this article, please reach out to me on Twitter. Thanks for reading!
+If you have any questions or comments about this article, please reach out to me on [Twitter](https://twitter.com/lewisjkl). Thanks for reading!
