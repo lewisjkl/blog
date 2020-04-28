@@ -6,7 +6,7 @@ categories: [ scala, refined ]
 tags: []
 image: assets/images/kinsey-Gk-MMZu9rmE-unsplash.jpg
 description: "Scala's require method is frequently used where better options are available."
-featured: true
+featured: false
 hidden: false
 ---
 
