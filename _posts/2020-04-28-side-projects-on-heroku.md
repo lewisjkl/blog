@@ -87,4 +87,4 @@ In the end, I won't be using Heroku for my next side project. I think it works r
 
 For my next project, I am going to use AWS to host. I will write another post talking about my findings and comparing the experience to Heroku. I am hoping that I will be able to setup AWS in such a way that it will be just as easy to deploy to as Heroku after I get everything setup the first time. If I can achieve that along with a lower end cost, then I will consider it a success and deploy all my future side projects that way.
 
-Follow me on Twitter to keep up with my latest projects, posts, and findings.
+**[Follow me on Twitter](https://twitter.com/lewisjkl)** to keep up with my latest projects, posts, and findings.
