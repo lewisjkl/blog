@@ -6,7 +6,7 @@ categories: [ heroku, side-projects, bootstrap ]
 tags: []
 image: assets/images/heroku-logotype-horizontal-white.jpg
 description: "When it comes to side projects, I am constantly seeking to find the perfect balance between cost and efficiency. Here is what I found while working with Heroku."
-featured: true
+featured: false
 hidden: false
 ---
 
