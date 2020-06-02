@@ -4,7 +4,7 @@ title:  "Configuration as Code with Ciris"
 author: jeff
 categories: [ config, configuration, ciris ]
 tags: []
-image: assets/images/heroku-logotype-horizontal-white.jpg
+image: assets/images/markus-spiske-qjnAnF0jIGk-unsplash.jpg
 description: "Configuration as code allows you to avoid common runtime errors by providing compile-time safety."
 featured: true
 hidden: false
