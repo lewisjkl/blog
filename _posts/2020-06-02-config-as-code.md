@@ -44,7 +44,7 @@ object Main extends IOApp {
 
   val myApp: IO[Unit] = for {
       cfg <- Config.appConfig.load[IO]
-      _ <- new MyProgram(cfg)
+      _ <- IO.pure(new MyProgram(cfg))
   } yield ()
 
   def run(args: List[String]): IO[ExitCode] = {
@@ -85,7 +85,7 @@ Ciris allows you to decode your own custom types. You do this by implementing `C
 final case class SlackChannel private (value: String)
 
 object SlackChannel {
-    def create(value: String): Option[SlackChannel] {
+    def create(value: String): Option[SlackChannel] = {
         if (value.startsWith("#")) {
             value.some
         } else {
